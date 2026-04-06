@@ -22,32 +22,33 @@
         /* --- CONTENEDOR PRINCIPAL --- */
         .wrapper {
             width: 90%;
-            max-width: 550px;
-            aspect-ratio: 16 / 10; /* Mantiene la proporción del sobre perfecta */
+            max-width: 520px;
+            /* AJUSTE: Proporción 16/12 para que sea más alto */
+            aspect-ratio: 16 / 12; 
             position: relative;
             perspective: 1200px;
             cursor: pointer;
-            margin-top: 60px; /* Da espacio arriba para cuando la carta salga */
+            margin-top: 100px; /* Más espacio para que la carta no se salga de la pantalla al subir */
         }
 
         /* --- EL SOBRE FÍSICO --- */
-        /* Parte trasera */
         .envelope-back {
             position: absolute;
             inset: 0;
-            background: #1a3a5f; /* Azul marino elegante */
-            border-radius: 6px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            background: #1a3a5f;
+            border-radius: 8px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
         }
 
-        /* Bolsillo delantero (Cubre la carta inicialmente) */
+        /* Bolsillo delantero */
         .envelope-front {
             position: absolute;
             inset: 0;
-            background: #132a46; /* Ligeramente más oscuro para dar profundidad */
+            background: #132a46;
+            /* La "V" se ajusta automáticamente al ser porcentual */
             clip-path: polygon(0 0, 50% 50%, 100% 0, 100% 100%, 0 100%);
             z-index: 3;
-            border-radius: 6px;
+            border-radius: 8px;
             pointer-events: none;
         }
 
@@ -60,9 +61,9 @@
             clip-path: polygon(0 0, 100% 0, 50% 50%);
             transform-origin: top;
             z-index: 4;
-            /* Transición al cerrar: espera a que la carta entre (0.6s) antes de bajar */
             transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.6s; 
             pointer-events: none;
+            border-radius: 8px 8px 0 0;
         }
 
         /* Sello de lacre */
@@ -70,121 +71,106 @@
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 55px; height: 55px;
+            width: 60px; height: 60px;
             background: radial-gradient(circle at 30% 30%, #e74c3c, #b81d13);
             border-radius: 50%;
             z-index: 5;
             color: white;
-            font-size: 26px;
+            font-size: 28px;
             font-weight: bold;
-            font-family: 'Times New Roman', serif;
             display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3), inset 0 0 5px rgba(0,0,0,0.4);
-            /* Transición al cerrar: aparece después de 0.6s */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             transition: opacity 0.3s ease-in-out 0.6s; 
-            pointer-events: none;
         }
 
         /* --- LA CARTA --- */
         .letter {
             position: absolute;
-            bottom: 5px; left: 15px; right: 15px;
+            bottom: 5px; left: 12px; right: 12px;
             height: calc(100% - 10px);
-            background: #fffdf8; /* Tono papel marfil */
-            border: 1px solid #e0c097; /* Borde dorado sutil */
+            background: #fffdf8;
+            border: 1px solid #e0c097;
             border-radius: 4px;
-            z-index: 2; /* Totalmente escondida debajo de flap (4) y front (3) */
+            z-index: 2;
             padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
             justify-content: center;
-            /* Transición al cerrar: baja y se encoge inmediatamente, el z-index cambia al final */
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
-                        height 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
-                        z-index 0s 0.6s;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), 
+                        height 0.7s cubic-bezier(0.4, 0, 0.2, 1), 
+                        z-index 0s 0.7s;
         }
 
-        /* --- ANIMACIÓN AL ABRIR (.is-open) --- */
-        
+        /* --- ANIMACIÓN AL ABRIR --- */
         .wrapper.is-open .flap {
             transform: rotateX(180deg);
-            /* Abre inmediatamente */
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0s; 
+            transition-delay: 0s; 
         }
 
         .wrapper.is-open .seal {
             opacity: 0;
-            transition: opacity 0.2s 0s;
+            transition-delay: 0s;
         }
 
         .wrapper.is-open .letter {
-            height: 180%; /* La carta crece enormemente hacia arriba */
-            transform: translateY(-20px); /* Sale un poco del fondo */
-            z-index: 10; /* SOLUCIÓN: Salta hacia el frente absoluto, tapando la solapa */
-            /* Transición al abrir: espera 0.4s (que abra el sobre), cambia a z-index 10, y sube */
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s, 
-                        height 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s, 
+            height: 175%; /* Crece hacia arriba */
+            transform: translateY(-25px); 
+            z-index: 10; /* Se pone al frente de la solapa */
+            transition-delay: 0.4s;
+            z-index: 10;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.4s, 
+                        height 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.4s, 
                         z-index 0s 0.4s;
         }
 
-        /* --- ESTILOS DE TEXTO --- */
+        /* --- TEXTOS --- */
         .intro {
             font-style: italic;
-            font-size: 1.05rem;
+            font-size: 1rem;
             color: #555;
             margin: 0 0 15px 0;
-            line-height: 1.5;
-            text-align: justify;
+            line-height: 1.4;
+            text-align: center;
         }
 
         .quote {
             background-color: #f9f6f0;
-            border-left: 4px solid #b8860b;
+            border-left: 5px solid #b8860b;
             padding: 15px;
             color: #1a3a5f;
             font-weight: 600;
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             line-height: 1.5;
             margin: 0;
             border-radius: 0 6px 6px 0;
+            text-align: left;
         }
 
         .heart { color: #ff3366; }
 
-        /* Instrucción parpadeante */
         .instruction {
-            margin-top: 40px;
+            margin-top: 50px;
             color: #1a3a5f;
-            font-family: Arial, sans-serif;
-            font-size: 1.1rem;
-            letter-spacing: 1px;
+            font-weight: bold;
             animation: pulse 2s infinite;
             transition: opacity 0.3s;
         }
 
-        .wrapper.is-open ~ .instruction {
-            opacity: 0;
-        }
+        .wrapper.is-open ~ .instruction { opacity: 0; }
 
         @keyframes pulse {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
         }
 
-        /* --- DISEÑO RESPONSIVE (MÓVILES) --- */
-        @media (max-width: 600px) {
-            .intro { font-size: 0.95rem; margin-bottom: 12px; }
-            .quote { font-size: 1rem; padding: 12px; }
+        /* --- RESPONSIVE --- */
+        @media (max-width: 500px) {
+            .wrapper { margin-top: 120px; aspect-ratio: 16 / 13; }
+            .intro { font-size: 0.9rem; }
+            .quote { font-size: 0.95rem; padding: 10px; }
             .letter { padding: 15px; }
-            .wrapper { aspect-ratio: 16 / 11; margin-top: 80px; }
-            .wrapper.is-open .letter { height: 185%; transform: translateY(-15px); }
-        }
-        @media (max-width: 400px) {
-            .intro { font-size: 0.85rem; line-height: 1.4; }
-            .quote { font-size: 0.95rem; line-height: 1.4; }
-            .seal { width: 45px; height: 45px; font-size: 20px; }
-            .wrapper.is-open .letter { height: 205%; } /* Crece más para que quepa el texto en pantallas angostas */
+            .wrapper.is-open .letter { height: 210%; } /* Más alto en móvil para que no se corte el texto */
         }
     </style>
 </head>
@@ -207,7 +193,7 @@
         <div class="seal">V</div>
     </div>
 
-    <p class="instruction">Toca el sobre para abrir la carta</p>
+    <p class="instruction">Haz clic en el sobre para abrirlo</p>
 
 </body>
 </html>
