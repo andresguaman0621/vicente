@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feliz San Vicente - Papá</title>
+    <style>
+        /* --- ESTILOS BASE --- */
+        * { box-sizing: border-box; }
+        body {
+            background: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Georgia', serif;
+            overflow-x: hidden;
+        }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .wrapper {
+            width: 90%;
+            max-width: 550px;
+            aspect-ratio: 16 / 10; /* Mantiene la proporción del sobre perfecta */
+            position: relative;
+            perspective: 1200px;
+            cursor: pointer;
+            margin-top: 60px; /* Da espacio arriba para cuando la carta salga */
+        }
+
+        /* --- EL SOBRE FÍSICO --- */
+        /* Parte trasera */
+        .envelope-back {
+            position: absolute;
+            inset: 0;
+            background: #1a3a5f; /* Azul marino elegante */
+            border-radius: 6px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        /* Bolsillo delantero (Cubre la carta inicialmente) */
+        .envelope-front {
+            position: absolute;
+            inset: 0;
+            background: #132a46; /* Ligeramente más oscuro para dar profundidad */
+            clip-path: polygon(0 0, 50% 50%, 100% 0, 100% 100%, 0 100%);
+            z-index: 3;
+            border-radius: 6px;
+            pointer-events: none;
+        }
+
+        /* Solapa superior */
+        .flap {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #1a3a5f;
+            clip-path: polygon(0 0, 100% 0, 50% 50%);
+            transform-origin: top;
+            z-index: 4;
+            /* Transición al cerrar: espera a que la carta entre (0.6s) antes de bajar */
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.6s; 
+            pointer-events: none;
+        }
+
+        /* Sello de lacre */
+        .seal {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 55px; height: 55px;
+            background: radial-gradient(circle at 30% 30%, #e74c3c, #b81d13);
+            border-radius: 50%;
+            z-index: 5;
+            color: white;
+            font-size: 26px;
+            font-weight: bold;
+            font-family: 'Times New Roman', serif;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3), inset 0 0 5px rgba(0,0,0,0.4);
+            /* Transición al cerrar: aparece después de 0.6s */
+            transition: opacity 0.3s ease-in-out 0.6s; 
+            pointer-events: none;
+        }
+
+        /* --- LA CARTA --- */
+        .letter {
+            position: absolute;
+            bottom: 5px; left: 15px; right: 15px;
+            height: calc(100% - 10px);
+            background: #fffdf8; /* Tono papel marfil */
+            border: 1px solid #e0c097; /* Borde dorado sutil */
+            border-radius: 4px;
+            z-index: 2; /* Totalmente escondida debajo de flap (4) y front (3) */
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            /* Transición al cerrar: baja y se encoge inmediatamente, el z-index cambia al final */
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
+                        height 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
+                        z-index 0s 0.6s;
+        }
+
+        /* --- ANIMACIÓN AL ABRIR (.is-open) --- */
+        
+        .wrapper.is-open .flap {
+            transform: rotateX(180deg);
+            /* Abre inmediatamente */
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0s; 
+        }
+
+        .wrapper.is-open .seal {
+            opacity: 0;
+            transition: opacity 0.2s 0s;
+        }
+
+        .wrapper.is-open .letter {
+            height: 180%; /* La carta crece enormemente hacia arriba */
+            transform: translateY(-20px); /* Sale un poco del fondo */
+            z-index: 10; /* SOLUCIÓN: Salta hacia el frente absoluto, tapando la solapa */
+            /* Transición al abrir: espera 0.4s (que abra el sobre), cambia a z-index 10, y sube */
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s, 
+                        height 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s, 
+                        z-index 0s 0.4s;
+        }
+
+        /* --- ESTILOS DE TEXTO --- */
+        .intro {
+            font-style: italic;
+            font-size: 1.05rem;
+            color: #555;
+            margin: 0 0 15px 0;
+            line-height: 1.5;
+            text-align: justify;
+        }
+
+        .quote {
+            background-color: #f9f6f0;
+            border-left: 4px solid #b8860b;
+            padding: 15px;
+            color: #1a3a5f;
+            font-weight: 600;
+            font-size: 1.15rem;
+            line-height: 1.5;
+            margin: 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .heart { color: #ff3366; }
+
+        /* Instrucción parpadeante */
+        .instruction {
+            margin-top: 40px;
+            color: #1a3a5f;
+            font-family: Arial, sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            animation: pulse 2s infinite;
+            transition: opacity 0.3s;
+        }
+
+        .wrapper.is-open ~ .instruction {
+            opacity: 0;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* --- DISEÑO RESPONSIVE (MÓVILES) --- */
+        @media (max-width: 600px) {
+            .intro { font-size: 0.95rem; margin-bottom: 12px; }
+            .quote { font-size: 1rem; padding: 12px; }
+            .letter { padding: 15px; }
+            .wrapper { aspect-ratio: 16 / 11; margin-top: 80px; }
+            .wrapper.is-open .letter { height: 185%; transform: translateY(-15px); }
+        }
+        @media (max-width: 400px) {
+            .intro { font-size: 0.85rem; line-height: 1.4; }
+            .quote { font-size: 0.95rem; line-height: 1.4; }
+            .seal { width: 45px; height: 45px; font-size: 20px; }
+            .wrapper.is-open .letter { height: 205%; } /* Crece más para que quepa el texto en pantallas angostas */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper" onclick="this.classList.toggle('is-open')">
+        <div class="envelope-back"></div>
+        
+        <div class="letter">
+            <p class="intro">
+                El nombre Vicente significa "el vencedor". En el día de tu santo, recordamos que tu mayor victoria ha sido construir una familia con esfuerzo, perseverancia y bondad.
+            </p>
+            <div class="quote">
+                "Que tenga un Feliz San Vicente al hombre más trabajador, atento y amoroso que Dios te colme de muchas bendiciones <span class="heart">❤️</span> Gracias por ser un padre ejemplar eres un hombre digno de admirar te amo papá Vicente Guado"
+            </div>
+        </div>
+
+        <div class="envelope-front"></div>
+        <div class="flap"></div>
+        <div class="seal">V</div>
+    </div>
+
+    <p class="instruction">Toca el sobre para abrir la carta</p>
+
+</body>
+</html>
